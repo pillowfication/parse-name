@@ -1,0 +1,23 @@
+{
+  "name": "parse-name",
+  "version": "1.0.0",
+  "description": "parse name",
+  "author": {
+    "name": "Markus Tran",
+    "email": "thebluepillow@gmail.com",
+    "url": "http://pillowfication.com"
+  },
+  "homepage": "https://github.com/pillowfication/parse-name",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pillowfication/parse-name.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pillowfication/parse-name/issues"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "fix-utf8": "^1.0.4",
+    "unorm": "^1.4.1"
+  }
+}
