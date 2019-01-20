@@ -7,8 +7,8 @@ const lastNamePrefixRegex = `(?:${[ 'a', 'al', 'ab', 'abd', 'abo', 'abu', 'bar',
 
 const nnMatch = new RegExp(`(${nicknameRegex})`, 'g')
 const nnReplace = new RegExp(nicknameRegex, 'g')
-const pfReplace = new RegExp(prefixRegex, 'g')
-const sfReplace = new RegExp(suffixRegex, 'g')
+const pfReplace = new RegExp(`^(${prefixRegex}\s+)+`, 'g')
+const sfReplace = new RegExp(`(\s+${suffixRegex})+$`, 'g')
 const fmlMatch = new RegExp(
   '^' +
   `(${nameRegex})` +

@@ -12,10 +12,15 @@ function clean (name) {
   return unorm.nfkd(fixUtf8(name)).replace(/[\u0300-\u036F]/g, '')
 }
 
+const errors = []
+
 for (const name of names) {
   if (!parseName(clean(name))) {
     if (!/\b(and|et al)(\b|$)/i.test(name)) {
       console.log(clean(name))
+      errors.push(clean(name))
     }
   }
 }
+
+fs.writeFileSync(path.resolve(__dirname, './errors.txt'), errors.join('\n') + '\n')
