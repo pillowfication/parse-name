@@ -16,8 +16,12 @@
     "url": "https://github.com/pillowfication/parse-name/issues"
   },
   "main": "index.js",
+  "scripts": {
+    "test": "node_modules/standard/bin/cmd.js"
+  },
   "devDependencies": {
     "fix-utf8": "^1.0.4",
+    "standard": "^12.0.1",
     "unorm": "^1.4.1"
   }
 }

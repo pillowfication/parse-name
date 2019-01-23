@@ -2,13 +2,14 @@ const letterRegex = '[\u0041-\u005A\u0061-\u007A\u00AA\u00B5\u00BA\u00C0-\u00D6\
 const nameRegex = `(?:['‘’”׳-]|${letterRegex})+[.'‘’”׳-]*`
 const nicknameRegex = '(?:".*?"|“.*?”|‘.*?’|\\(.*?\\)|\\[.*?\\])'
 const prefixRegex = `(?:${[ 'captain', 'doctor', 'dr\\.?', 'frau', 'herr', 'hr\\.?', 'ind\\.?', 'judge', 'misc\\.?', 'miss', 'mister', 'monsieur', 'm\\.?d\\.?', 'mr\\.?', 'mrs\\.?', 'ms\\.?', 'mx\\.?', 'officer', 'prof\\.?', 'professor', 'sir', 'sr\\.?' ].join('|')})`
-const suffixRegex = `(?:${[ '2', 'd\\.?c\\.?', 'd\\.?o\\.?', 'esq\\.?', 'esquire', 'ii', 'iii', 'iv', 'j\\.?d\\.?', 'jnr\\.?', 'jr\\.?', 'll\\.?m\\.?', 'm\\.?d\\.?', 'p\\.?c\\.?', 'ph\\.?d\\.?', 'snr\\.?', 'sr\\.?' ].join('|')})`
+const suffixRegex = `(?:${[ '2', 'd\\.?c\\.', 'd\\.?o\\.', 'esq\\.?', 'esquire', 'ii', 'iii', 'iv', 'j\\.?d\\.?', 'jnr\\.?', 'jr\\.?', 'll\\.?m\\.?', 'm\\.?d\\.?', 'p\\.?c\\.?', 'ph\\.?d\\.?', 'snr\\.?', 'sr\\.?' ].join('|')})`
 const lastNamePrefixRegex = `(?:${[ 'a', 'al', 'ab', 'abd', 'abo', 'abu', 'bar', 'bin', 'da', 'dal', 'de', 'de la', 'del', 'della', 'der', 'di', 'du', 'ibn', 'l\'?', 'la', 'le', 'lo', 'san', 'st.?', 'ste', 'ter', 'van', 'van de', 'van der', 'van den', 'vel', 'ver', 'vere', 'von' ].join('|')})`
 
+const llMatch = new RegExp(letterRegex, 'g')
 const nnMatch = new RegExp(`(${nicknameRegex})`, 'g')
 const nnReplace = new RegExp(nicknameRegex, 'g')
-const pfReplace = new RegExp(`^(${prefixRegex}\s+)+`, 'g')
-const sfReplace = new RegExp(`(\s+${suffixRegex})+$`, 'g')
+const pfReplace = new RegExp(`^(${prefixRegex}\\s+)+`, 'g')
+const sfReplace = new RegExp(`(\\s+${suffixRegex})+$`, 'g')
 const fmlMatch = new RegExp(
   '^' +
   `(${nameRegex})` +
@@ -27,7 +28,7 @@ const lfmMatch = new RegExp(
 const lmfMatch = new RegExp(
   '^' +
   `((?:${lastNamePrefixRegex} )?${nameRegex})` +
-  `(?: (${nameRegex}(?: ${nameRegex})*))?` +
+  `(?:\\s+(${nameRegex}(?: ${nameRegex})*))?` +
   '\\s*,\\s*' +
   `(${nameRegex})` +
   '$'
@@ -53,9 +54,9 @@ function parseName (string) {
   string = clean(string)
 
   const nicknameMatches = string.match(nnMatch)
-  const nicknames = nicknameMatches ?
-    nicknameMatches.map(string => string.substring(1, string.length - 1).trim()).join(', ') :
-    undefined
+  const nicknames = nicknameMatches
+    ? nicknameMatches.map(string => string.substring(1, string.length - 1).trim()).join(', ')
+    : undefined
   if (nicknames) {
     string = string.replace(nnReplace, '')
   }
@@ -64,42 +65,22 @@ function parseName (string) {
   string = string.replace(sfReplace, '')
   string = clean(string)
 
-  let match
+  let match, firstName, middleName, lastName
 
-  match = string.match(fmlMatch)
-  if (match) {
-    const [, firstName, middleName, lastName] = match
-    return {
-      firstName: firstName && firstName.replace(dotRegex, ''),
-      middleName: middleName && middleName.replace(dotRegex, ''),
-      lastName: lastName && lastName.replace(dotRegex, ''),
-      nicknames
-    }
+  if (match = string.match(fmlMatch)) { // eslint-disable-line no-cond-assign
+    [, firstName, middleName, lastName] = match
+  } else if (match = string.match(lfmMatch)) { // eslint-disable-line no-cond-assign
+    [, lastName, firstName, middleName] = match
+  } else if (match = string.match(lmfMatch)) { // eslint-disable-line no-cond-assign
+    [, lastName, middleName, firstName] = match
   }
 
-  match = string.match(lfmMatch)
-  if (match) {
-    const [, lastName, firstName, middleName] = match
-    return {
-      firstName: firstName && firstName.replace(dotRegex, ''),
-      middleName: middleName && middleName.replace(dotRegex, ''),
-      lastName: lastName && lastName.replace(dotRegex, ''),
-      nicknames
-    }
+  return match && {
+    firstName: firstName && firstName.match(llMatch).join(''),
+    middleName: middleName && middleName.match(llMatch).join(''),
+    lastName: lastName && lastName.match(llMatch).join(''),
+    nicknames
   }
-
-  match = string.match(lmfMatch)
-  if (match) {
-    const [, lastName, middleName, firstName] = match
-    return {
-      firstName: firstName && firstName.replace(dotRegex, ''),
-      middleName: middleName && middleName.replace(dotRegex, ''),
-      lastName: lastName && lastName.replace(dotRegex, ''),
-      nicknames
-    }
-  }
-
-  return null
 }
 
 module.exports = parseName
